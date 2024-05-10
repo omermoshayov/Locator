@@ -1,3 +1,8 @@
+"""
+    omer moshayov
+    Locator Constants
+"""
+
 import subprocess
 from constants import *
 import googlemaps

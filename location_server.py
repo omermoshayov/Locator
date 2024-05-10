@@ -1,5 +1,5 @@
 """
-    Omer Moshayov
+    omer moshayov
     Locator Server
 """
 
@@ -40,7 +40,7 @@ class Server(object):
             server_socket.listen(LISTEN)
             return server_socket
         except Exception as msg:
-            print("General error 1: ", msg)
+            print("General error: ", msg)
 
     def handle_clients(self):
         """
@@ -56,12 +56,13 @@ class Server(object):
         while not done:
             try:
                 client_socket, address = self.server_socket.accept()
-                client_thread = threading.Thread(target=self.handle_single_client, args=(client_socket,))
+                client_thread = threading.Thread(
+                    target=self.handle_single_client, args=(client_socket,))
                 client_thread.start()
             except socket.error as msg:
                 print("Socket Error: ", msg)
             except Exception as msg:
-                print("General error 2: ", msg)
+                print("General error: ", msg)
 
     def handle_single_client(self, client_socket):
         """
@@ -76,13 +77,17 @@ class Server(object):
         try:
             while not done:
                 request, params = Server.receive_client_request(client_socket)
-                valid, clients_name = Server.check_client_request(request, params)
+                valid, clients_name = \
+                    Server.check_client_request(request, params)
                 if request is None:
                     break
                 print("1 ", request)
                 print("2 ", params)
                 if valid:
-                    response_to_receiver = self.handle_client_request(request, params, client_socket, clients_name)
+                    response_to_receiver = \
+                        self.handle_client_request(request,
+                                                   params, client_socket,
+                                                   clients_name)
                     if response_to_receiver == "RECEIVING":
                         done = True
                     else:
@@ -90,7 +95,7 @@ class Server(object):
         except socket.error as msg:
             print("socket error:", msg)
         except Exception as msg:
-            print("general error 2: ", msg)
+            print("general error: ", msg)
 
     @staticmethod
     def receive_client_request(client_socket):
@@ -117,6 +122,7 @@ class Server(object):
         client's socket using the recv command
         and prints it.
         """
+        response = ''
         raw_response = Server.my_recv(client_socket)
         response = raw_response.decode()
         print("4 ", response)
@@ -125,7 +131,7 @@ class Server(object):
     @staticmethod
     def my_recv(sock):
         """
-        receiving the request from the client in small parts.
+        receiving the request from the server in small parts.
         :param sock: receiving socket
         """
         data = b''
@@ -147,21 +153,27 @@ class Server(object):
         name = None
         if params is not None:
             name = params[FIRST] + " " + params[SECOND]
-        if request == 'GET_LOCATION' and (params[FIRST] and params[SECOND]).isalpha:
+        if request == 'GET_LOCATION' and (params[FIRST] and
+                                          params[SECOND]).isalpha:
             return True, name
-        if request == "RECEIVING" and (params[FIRST] + params[SECOND]).isalpha():
+        if request == "RECEIVING" and \
+                (params[FIRST] + params[SECOND]).isalpha():
             return True, name
         if request == "EXIT" and params is None:
             return True, None
-        if request == "SEARCH" and (params[FIRST] + params[SECOND]).isalpha():
+        if request == "SEARCH" and \
+                (params[FIRST] + params[SECOND]).isalpha():
             return True, name
-        if request == "BEEP" and (params[FIRST] + params[SECOND]).isalpha():
+        if request == "BEEP" and \
+                (params[FIRST] + params[SECOND]).isalpha():
             return True, None
-        if request == "ADD" and (params[FIRST] + params[SECOND]).isalpha():
+        if request == "ADD" and \
+                (params[FIRST] + params[SECOND]).isalpha():
             return True, None
         return False, None
 
-    def handle_client_request(self, request, params, client_socket, clients_name):
+    def handle_client_request(self, request, params, client_socket,
+                              clients_name):
         """
         Gets the request, params and the client_socket and
         sends it to the other client
@@ -180,7 +192,7 @@ class Server(object):
             response = self.beep(params)
             return response
         if request == "ADD":
-            response = self.add(params, client_socket)
+            response = self.add(params)
             return response
 
     def send_location(self, name):
@@ -209,48 +221,19 @@ class Server(object):
             sock = self.clients[name.upper()]
             Server.send("BEEP " + name, sock)
             rsp = Server.receive_client_response(sock)
-            # rsp = "hey"
             return rsp
         else:
             return "not able to beep"
 
-    def add(self, params, client_socket):
+    def add(self, params):
         """
         adds the user name and the password of the
         client who signed up to the dictionary of the passwords.
         """
-        if len(params) == 3:
-            nm = params[FIRST] + " " + params[SECOND]
-            pswd = params[THIRD]
-            if not self.check_existing_password(pswd):
-                return "This password is already taken"
-            elif not self.check_existing_username(nm):
-                return "This username is already taken"
-            else:
-                self.clients_password[nm.upper()] = pswd
-                self.clients[nm.upper()] = client_socket
-                return "Signed up successfully"
-    def check_existing_username(self, name):
-        """
-           Searching if there is already a client with
-           the same username.
-        """
-        flag = False
-        for key in self.clients_password:
-            if key == name[0]:
-                flag = True
-        return not flag
-
-    def check_existing_password(self, pswd):
-        """
-        Searching if there is already a client with
-        the same password.
-        """
-        flag = False
-        for key in self.clients_password:
-            if self.clients_password[key] == pswd:
-                flag = True
-        return not flag
+        nm = params[FIRST] + " " + params[SECOND]
+        pswd = params[THIRD]
+        self.clients_password[nm.upper()] = pswd
+        return "signed up successfully"
 
     def add_to_dictionary(self, client_socket, clients_name):
         """
@@ -286,6 +269,8 @@ class Server(object):
         lll = ll.zfill(SIZE_LEN)
         llll = lll.encode()
         sock.send(llll + encoded_msg)
+
+
 def main():
     """ constructs a server and runs it"""
     server = Server(SERVER_IP, PORT)

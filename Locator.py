@@ -1,17 +1,17 @@
 """
+    omer moshayov
     Window
 """
 
 import wx
-from client import *
-from constants import *
-from get_loc import *
-from location_server import *
+import subprocess
+from client import*
+from constants import*
 import hashlib
+
 ##############################################################################
 #                        log in / register window                            #
 ##############################################################################
-
 
 class Options(wx.Frame):
     """
@@ -24,7 +24,8 @@ class Options(wx.Frame):
             constructor.
             """
             try:
-                super(Options, self).__init__(parent, title="Locator", size=(FRAME_WIDTH, FRAME_LENGTH))
+                super(Options, self).__init__(parent, title="Locator",
+                                              size=(FRAME_WIDTH, FRAME_LENGTH))
                 self.params = []
                 self.combo_box = None
                 self.client = Client(CLIENT_IP, PORT, "sjd cnj")
@@ -32,7 +33,7 @@ class Options(wx.Frame):
             except socket.error as msg:
                 print("socket error:", msg)
             except Exception as msg:
-               print("general error: ", msg)
+                print("general error: ", msg)
 
         def InitUI(self):
             """
@@ -57,7 +58,7 @@ class Options(wx.Frame):
                 print("socket error:", msg)
                 return "socket error: %s" % msg
             except Exception as msg:
-                print("general error 1: ", msg)
+                print("general error: ", msg)
                 return "general error: %s" % msg
 
         def onQuit(self, e):
@@ -87,7 +88,7 @@ class Options(wx.Frame):
                 print("socket error:", msg)
                 return "socket error: %s" % msg
             except Exception as msg:
-                print("general error 2: ", msg)
+                print("general error: ", msg)
                 return "general error: %s" % msg
 
         def on_click_sign_up(self, e):
@@ -102,7 +103,7 @@ class Options(wx.Frame):
                 print("socket error:", msg)
                 return "socket error: %s" % msg
             except Exception as msg:
-                print("general error 3: ", msg)
+                print("general error: ", msg)
                 return "general error: %s" % msg
 
         def on_send(self, e):
@@ -115,7 +116,7 @@ class Options(wx.Frame):
                 print("socket error:", msg)
                 return "socket error: %s" % msg
             except Exception as msg:
-                print("general error 4: ", msg)
+                print("general error: ", msg)
                 return "general error: %s" % msg
     except socket.error as msg:
         print("socket error:", msg)
@@ -148,7 +149,7 @@ class LogIn(wx.Frame):
             except socket.error as msg:
                 print("socket error:", msg)
             except Exception as msg:
-                print("general error 5: ", msg)
+                print("general error: ", msg)
 
         def InitUI(self):
             """
@@ -170,7 +171,7 @@ class LogIn(wx.Frame):
                 sbs.Add(text_one)
                 sbs.Add(self.params[FIRST_TEXTBOX], flag=wx.LEFT, border=BORDER)
                 text_two = wx.StaticText(pnl, label='Password')
-                param_two = wx.TextCtrl(pnl, style=wx.TE_PROCESS_ENTER | wx.TE_PASSWORD )
+                param_two = wx.TextCtrl(pnl, style=wx.TE_PROCESS_ENTER | wx.TE_PASSWORD)
                 self.params.append(param_two)
                 sbs.Add(text_two)
                 sbs.Add(self.params[SECOND_TEXTBOX], flag=wx.LEFT, border=BORDER)
@@ -180,14 +181,13 @@ class LogIn(wx.Frame):
                 back_btn = wx.Button(pnl, label='Back to options', pos=(BACK_BUTTON_X, BACK_BUTTON_Y))
                 back_btn.Bind(wx.EVT_BUTTON, self.on_back)
                 self.Bind(wx.EVT_TEXT_ENTER, self.on_send, self.params[SECOND_TEXTBOX])
-
                 self.Centre()
                 self.Show(True)
             except socket.error as msg:
                 print("socket error:", msg)
                 return "socket error: %s" % msg
             except Exception as msg:
-                print("general error 6: ", msg)
+                print("general error: ", msg)
                 return "general error: %s" % msg
 
         def on_back(self, event):
@@ -206,7 +206,7 @@ class LogIn(wx.Frame):
                 print("socket error:", msg)
                 return "socket error: %s" % msg
             except Exception as msg:
-                print("general error 7: ", msg)
+                print("general error: ", msg)
                 return "general error: %s" % msg
 
         def on_click(self, e):
@@ -219,7 +219,7 @@ class LogIn(wx.Frame):
                 print("socket error:", msg)
                 return "socket error: %s" % msg
             except Exception as msg:
-                print("general error 8: ", msg)
+                print("general error: ", msg)
                 return "general error: %s" % msg
 
         def on_send(self, e):
@@ -239,6 +239,7 @@ class LogIn(wx.Frame):
                 bpswd = pswd.encode('utf-8')
                 hasher.update(bpswd)
                 pswd = hasher.hexdigest()
+                # self.client = Client(CLIENT_IP, PORT, prm)
                 command = "SEARCH"
                 request = command + " " + prm + " " + pswd
                 response = self.client.send_and_receive(request)
@@ -280,7 +281,8 @@ class SignUp(wx.Frame):
             constructor.
             """
             try:
-                super(SignUp, self).__init__(parent, title="Sign Up", size=(FRAME_WIDTH, FRAME_LENGTH))
+                super(SignUp, self).__init__(parent, title="Sign Up",
+                                             size=(FRAME_WIDTH, FRAME_LENGTH))
                 self.combo_box = None
                 self.name = None
                 self.password = None
@@ -292,6 +294,9 @@ class SignUp(wx.Frame):
                 print("general error: ", msg)
 
         def InitUI(self):
+            """
+            initiates window controls and displays it.
+            """
             try:
                 menu_bar = wx.MenuBar()
                 menu = wx.Menu()
@@ -307,7 +312,7 @@ class SignUp(wx.Frame):
                 sbs.Add(text_one)
                 sbs.Add(self.name, flag=wx.LEFT, border=BORDER)
                 text_two = wx.StaticText(pnl, label='Password (6 characters, including letters and numbers)')
-                self.password = wx.TextCtrl(pnl, style=wx.TE_PROCESS_ENTER | wx.TE_PASSWORD )
+                self.password = wx.TextCtrl(pnl, style=wx.TE_PROCESS_ENTER | wx.TE_PASSWORD)
                 sbs.Add(text_two)
                 sbs.Add(self.password, flag=wx.LEFT, border=BORDER)
                 pnl.SetSizer(sbs)
@@ -323,7 +328,6 @@ class SignUp(wx.Frame):
                 print("general error: ", msg)
                 return "general error: %s" % msg
 
-
         def on_sign_up(self, e):
             """
             creates a file and writes the given
@@ -331,19 +335,12 @@ class SignUp(wx.Frame):
             """
             f = open("client_sign_up.txt", "w")
             nm = self.name.GetLineText(FIRST)
-            kal = nm.split()
-            flag = True
-            if len(kal) == 3:
-                flag = False
-                nm = kal[0] + " " + kal[1] + kal[2]
-                wx.MessageBox("When log in enter your two family names combined")
-            if " " not in nm and flag:
-                wx.MessageBox("You have to enter last name as well")
+            pswd = self.password.GetLineText(FIRST)
+            if " " not in nm:
+                wx.MessageBox("you have to enter last name as well")
             else:
-                pswd = self.password.GetLineText(FIRST)
-                print(pswd)
                 if not self.check_password(pswd):
-                    wx.MessageBox("Weak password")
+                    wx.MessageBox("Weak password, password must contain letters, numbers and at least six characters")
                 else:
                     hasher = hashlib.sha256()
                     bpswd = pswd.encode('utf-8')
@@ -351,11 +348,19 @@ class SignUp(wx.Frame):
                     pswd = hasher.hexdigest()
                     f.write(nm + "\n" + pswd)
                     f.close()
+                    DETACHED_PROCESS = 0x00000008
+                    results = \
+                        subprocess.Popen(["C:\\Networks\\Python3.8\\python.exe"],
+                                         close_fds=True,
+                                         creationflags=DETACHED_PROCESS)
                     command = "ADD"
                     prm = nm + " " + pswd
                     request = command + " " + prm
+                    # self.client = Client(CLIENT_IP, PORT, nm)
                     response = self.client.send_and_receive(request)
-                    wx.MessageBox(response, "Response", wx.OK | wx.ICON_INFORMATION)
+                    wx.MessageBox(response, "Response", wx.OK |
+                                  wx.ICON_INFORMATION)
+                    #  self.client = Client(CLIENT_IP, PORT, nm)
                     self.Close()
 
         def check_password(self, pswd):
@@ -507,7 +512,8 @@ class Commands(wx.Frame):
                 prm = self.name
                 request = command + " " + prm
                 response = self.client.send_and_receive(request)
-                wx.MessageBox(response, "Sound", wx.OK | wx.ICON_INFORMATION)
+                wx.MessageBox(response, "Sound", wx.OK |
+                              wx.ICON_INFORMATION)
             except socket.error as msg:
                 print("socket error:", msg)
                 return "socket error: %s" % msg
@@ -527,7 +533,6 @@ class Commands(wx.Frame):
                 request = command + " " + prm
                 response = self.client.send_and_receive(request)
                 Map(None, photo_place, response)
-                #self.Close()
                 wx.App().MainLoop()
 
             except socket.error as msg:
@@ -560,6 +565,9 @@ class Commands(wx.Frame):
 ##############################################################################
 
 class Map(wx.Frame):
+    """
+    a window with two options: log in/ sign in
+    """
     try:
 
         def __init__(self, parent, photo_place, location):
@@ -567,7 +575,10 @@ class Map(wx.Frame):
             constructor.
             """
             try:
-                super(Map, self).__init__(parent, title="Map", size=(406, 470))
+                super(Map, self).__init__(parent,
+                                          title="Map",
+                                          size=(406,
+                                                470))
                 self.params = []
                 self.combo_box = None
                 self.bitmap = None
@@ -584,14 +595,28 @@ class Map(wx.Frame):
             initiates window controls and displays it.
             """
             try:
+                # generate menu
                 menu_bar = wx.MenuBar()
                 menu = wx.Menu()
-                menu_item = menu.Append(wx.ID_CLOSE, 'Quit', 'Quit application')
+                menu_item = menu.Append(wx.ID_CLOSE, 'Quit',
+                                        'Quit application')
                 menu_bar.Append(menu, '&Map')
                 self.SetMenuBar(menu_bar)
+
+                # bind quit menu item to on_quit method
                 self.Bind(wx.EVT_MENU, self.onQuit, menu_item)
+
+                # generate panel
                 pnl = wx.Panel(self)
-                self.on_click_show_map
+
+                # A static box is a vertical / horizontal sequence of items
+                sb = wx.StaticBox(pnl, label='Map')
+
+                # A static box sizer provides a border around a static box
+                sbs = wx.StaticBoxSizer(sb, orient=wx.VERTICAL)
+
+                self.on_click_show_map()
+
                 self.Centre()
                 self.Show(True)
             except socket.error as msg:
@@ -615,7 +640,6 @@ class Map(wx.Frame):
                 print("general error: ", msg)
                 return "general error: %s" % msg
 
-        @property
         def on_click_show_map(self):
             """
             called on button click and displays a message box
@@ -624,17 +648,21 @@ class Map(wx.Frame):
             try:
                 response = Location_handler.create_map(self.location)
                 if response is True:
-                    image_final = wx.Image(self.photo_place, wx.BITMAP_TYPE_ANY)
-                    image_final = image_final.Scale(500, 500, wx.IMAGE_QUALITY_HIGH)
-                    self.bitmap = wx.StaticBitmap(self, -1, wx.Bitmap(image_final))
-                    self.bitmap.SetPosition(wx.Point(0, 0))
+                    image_final = wx.Image(self.photo_place,
+                                           wx.BITMAP_TYPE_ANY)
+                    image_final = image_final.Scale(400, 400,
+                                                    wx.IMAGE_QUALITY_HIGH)
+                    self.bitmap = wx.StaticBitmap(self, -1,
+                                                  wx.Bitmap(image_final))
+                    self.bitmap.SetPosition(200, 100)
                 else:
-                    wx.MessageBox(response, "cant show map", wx.OK | wx.ICON_INFORMATION)
+                    wx.MessageBox(response, "cant show map", wx.OK |
+                                  wx.ICON_INFORMATION)
             except socket.error as msg:
                 print("socket error:", msg)
                 return "socket error: %s" % msg
             except Exception as msg:
-                print("general error map: ", msg)
+                print("general error: ", msg)
                 return "general error: %s" % msg
 
         def on_send(self, e):

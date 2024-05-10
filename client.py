@@ -1,8 +1,14 @@
-import socket #חיבור השרת והלקוח
-import sys #שליטה במערכת פיתון
-import threading # אחראי על פעולות סימולטניות
-import winsound #המחקלה שאחראית לביפ
-from get_loc import * #מציאת המפה
+"""
+    omer moshayov
+    Locator Client
+"""
+
+import socket
+import threading
+from constants import*
+import sys
+from get_loc import *
+import winsound
 
 
 class Client(object):
@@ -14,6 +20,7 @@ class Client(object):
         self.thread_counter = RESET
         try:
             self.user_socket = Client.initiate_client_socket(ip, port)
+
         except socket.error as msg:
             print('Connection failure: %s\n terminating program' % msg)
             sys.exit(SYS_EXIT)
@@ -59,7 +66,7 @@ class Client(object):
         Location_handler class
         """
         location = Location_handler.get_lat_lon()
-        return str(location)
+        return location
 
     def beep(self):
         """
@@ -116,7 +123,7 @@ class Client(object):
         """
         The action verifies that we have received a valid request.
         :param request: the request from the server
-        :return: True if valid, else false
+        :return: True if valid, else...
         """
         req_and_prms = request.split()
         if req_and_prms[FIRST] == "EXIT":
@@ -142,7 +149,6 @@ class Client(object):
         :param sock: the socket that needs
         to be used to send the request
         """
-
         encoded_msg = request.encode()
         l = len(encoded_msg)
         ll = str(l)
@@ -154,7 +160,7 @@ class Client(object):
         """
         An action that receives and prints the server's response
         """
-        data = self.receive_msg(self.user_socket)
+        data = Client.receive_msg(self.user_socket)
         return data
 
     def send_receiving_to_server(self, receiver_socket):
@@ -162,24 +168,22 @@ class Client(object):
         send the name of the client to the server
         for adding it to the dictionary
         """
-        msg = f"Receiving {self.name}"
+        msg = "Receiving " + self.name
         encoded_msg = msg.encode()
-        msg_size = len(encoded_msg).to_bytes(SIZE_LEN, byteorder='big')
-        receiver_socket.sendall(msg_size + encoded_msg)
+        l = len(encoded_msg)
+        ll = str(l)
+        lll = ll.zfill(SIZE_LEN)
+        llll = lll.encode()
+        receiver_socket.send(llll + msg.encode())
 
-    def receive_msg(self, server_socket):
+    @staticmethod
+    def receive_msg(server_socket):
         """
             An action that reads the message from the socket using
             the recv command.
         """
         row_msg = Client.my_recv(server_socket)
-        if "BEEP" in row_msg.decode():
-            msg = self.beep()
-        elif "GET_LOCATION" in row_msg.decode():
-            msg = Location_handler.get_lat_lon()
-        else:
-            msg = row_msg.decode()
-        return msg
+        return row_msg.decode()
 
     @staticmethod
     def my_recv(sock):
